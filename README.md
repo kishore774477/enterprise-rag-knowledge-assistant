@@ -7,6 +7,8 @@ Questions the documents don't cover are declined instead of answered with made-u
 
 **Stack:** Python · LangChain · OpenAI · Gradio
 
+[![tests](https://github.com/kishore774477/enterprise-rag-knowledge-assistant/actions/workflows/tests.yml/badge.svg)](https://github.com/kishore774477/enterprise-rag-knowledge-assistant/actions/workflows/tests.yml)
+
 ## Features
 
 - **Chat UI (Gradio)** with inline citations `[1]`, a panel showing the retrieved passages and their relevance, and follow-up questions that use the conversation history.
@@ -16,7 +18,7 @@ Questions the documents don't cover are declined instead of answered with made-u
   - **OpenAI mode:** OpenAI embeddings plus a chat model that writes the answer from the retrieved context (LangChain LCEL chain).
   - **Offline mode:** used when no API key is set. Local TF-IDF hashing embeddings plus an extractive answerer, so the project runs on any laptop at no cost. If OpenAI is unreachable or the key is invalid, the app switches to offline mode by itself and tells you.
 - **Built-in evaluation:** retrieval hit rate, MRR, answer keyword recall and refusal accuracy on a labelled question set, available from the CLI or the UI.
-- **Tests:** pytest suite covering ingestion, retrieval, answers, uploads, evaluation and the OpenAI fallback.
+- **Tests and CI:** pytest suite covering ingestion, retrieval, answers, uploads, evaluation and the OpenAI fallback, run on every push by GitHub Actions.
 
 ## Architecture
 
