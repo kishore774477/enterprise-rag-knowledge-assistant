@@ -11,6 +11,8 @@ import argparse
 import sys
 from pathlib import Path
 
+import envcheck  # noqa: F401  (must come before third-party imports)
+
 from rag import RAGAssistant, get_settings
 from rag.evaluation import evaluate, load_dataset, save_report
 

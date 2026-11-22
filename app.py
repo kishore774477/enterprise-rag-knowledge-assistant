@@ -14,6 +14,8 @@ from pathlib import Path
 
 os.environ.setdefault("GRADIO_ANALYTICS_ENABLED", "False")  # no usage telemetry from company machines
 
+import envcheck  # noqa: F401  (must come before third-party imports)
+
 import gradio as gr
 
 from rag import RAGAssistant, get_settings

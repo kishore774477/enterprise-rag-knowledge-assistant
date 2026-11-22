@@ -11,6 +11,8 @@ import argparse
 import logging
 from pathlib import Path
 
+import envcheck  # noqa: F401  (must come before third-party imports)
+
 from rag import KnowledgeBase, get_settings
 
 

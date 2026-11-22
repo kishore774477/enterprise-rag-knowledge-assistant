@@ -7,15 +7,50 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.12", "3.13", "3.14"]
     env:
       RAG_MODE: offline
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
           cache: pip
       - run: pip install -r requirements.txt
       - run: pytest -q
       - run: python evaluate.py
+
+  windows-setup:
+    # Exercises setup.ps1 the way a Windows user runs it, including repairing a broken .venv.
+    name: windows / setup.ps1
+    runs-on: windows-latest
+    env:
+      RAG_MODE: offline
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - name: Fresh setup
+        shell: powershell
+        run: .\setup.ps1 -Python 3.14
+      - name: Tests and evaluation
+        shell: powershell
+        run: |
+          .\.venv\Scripts\python.exe -m pytest -q
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          .\.venv\Scripts\python.exe evaluate.py
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+      - name: Repair a deliberately broken .venv
+        shell: powershell
+        run: |
+          Remove-Item -Recurse -Force .venv\Lib\site-packages\numpy\_core
+          .\setup.ps1 -Python 3.14
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          .\.venv\Scripts\python.exe -c "import numpy; print('numpy', numpy.__version__, 'OK')"

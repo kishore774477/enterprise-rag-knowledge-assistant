@@ -39,18 +39,33 @@ flowchart LR
 
 ## Quick start (Windows PowerShell)
 
+Requires Python 3.10 or newer (tested on 3.12, 3.13 and 3.14).
+
 ```powershell
 git clone https://github.com/kishore774477/enterprise-rag-knowledge-assistant.git
 cd enterprise-rag-knowledge-assistant
-python -m venv .venv
+.\setup.ps1
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
 python app.py
 ```
 
 Then open http://127.0.0.1:7860. The index is built automatically on first launch.
 
-On macOS or Linux, activate the environment with `source .venv/bin/activate` instead.
+`setup.ps1` creates the `.venv` environment from a real Python installation and installs
+the dependencies. It ignores any other project's environment that happens to be active, and
+rebuilds `.venv` by itself if it is broken. Options: `-Force` always rebuilds, and
+`-Python 3.13` picks a specific Python version. If PowerShell says running scripts is
+disabled, use `powershell -ExecutionPolicy Bypass -File .\setup.ps1`.
+
+**Manual setup (macOS, Linux, or without the script):** first run `deactivate` if another
+virtual environment is active, then:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate        # Windows: .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python app.py
+```
 
 ### Use OpenAI (optional)
 
@@ -61,6 +76,24 @@ Copy-Item .env.example .env
 Put your key in `.env` (`OPENAI_API_KEY=sk-...`) and restart the app. The chat and embedding
 models can be changed there too (`OPENAI_CHAT_MODEL`, `OPENAI_EMBEDDING_MODEL`). Each mode
 keeps its own index under `storage/index/<mode>/`.
+
+## Troubleshooting
+
+**`ImportError: Importing the numpy C-extensions failed` / `No module named 'numpy._core._multiarray_umath'`**
+or the app says *"Environment problem: ... cannot be loaded by Python 3.x"*.
+
+The `.venv` folder was created with one Python version and its packages were installed with
+another. This usually happens when `python -m venv .venv` is run while a different project's
+environment is active: the new `.venv` gets that Python, but pip sees the old packages and
+skips reinstalling them ("Requirement already satisfied"). Fix it by rebuilding:
+
+```powershell
+.\setup.ps1 -Force
+```
+
+Close the running app first, and run `deactivate` if `(.venv)` is shown in your prompt.
+
+**Port 7860 is already in use:** start the app on another port with `python app.py --port 7861`.
 
 ## Command-line tools
 
@@ -97,6 +130,8 @@ set to measure OpenAI mode on your own account.
 ├── app.py                  # Gradio web UI
 ├── ingest.py               # CLI: build the index
 ├── evaluate.py             # CLI: run the evaluation
+├── setup.ps1               # Windows: create or repair .venv and install dependencies
+├── envcheck.py             # clear error message when the environment is broken
 ├── rag/
 │   ├── config.py           # settings from .env / environment
 │   ├── loaders.py          # PDF/DOCX/MD/TXT loading + chunking
